@@ -3,20 +3,20 @@
     {
       "name": "MD Tawhidul islam",
       "type": "income",
-      "amount": 40000,
+      "amount": 90000,
       "id": 1
-    },
-    {
-      "name": "MD Tawhidul islam",
-      "type": "income",
-      "amount": 30000,
-      "id": 2
     },
     {
       "name": "MD Tawhidul islam",
       "type": "expense",
       "amount": 5000,
       "id": 3
+    },
+    {
+      "name": "name",
+      "type": "income",
+      "amount": 20000,
+      "id": 4
     }
   ]
 }

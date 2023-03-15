@@ -1,16 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addTransaction } from "../features/Transaction/transactionsSlice";
+import { addTransaction, changeTransaction, isEditInActive } from "../features/Transaction/transactionsSlice";
 
 export default function Form() {
 
     const [name, setName] = useState('')
     const [type, setType] = useState('')
     const [amount, setAmount] = useState('')
+    const [editMode, setEditMode] = useState(false)
     // console.log(type)
+
+    const reset = () => {
+        setAmount('')
+        setName('')
+        setType('')
+    }
 
     const dispatch = useDispatch()
     const { isLoading, isError, error } = useSelector((state) => state.transaction)
+
+    const { editing } = useSelector((state) => state.transaction) || {};
+    console.log(editing)
+
+    useEffect(() => {
+        const { id, name, amount, type } = editing || {};
+        if (id) {
+            setEditMode(true)
+            setAmount(amount)
+            setType(type)
+            setName(name)
+        } else {
+            setEditMode(false)
+            reset()
+        }
+
+    }, [editing])
 
     const handelCreate = (e) => {
         e.preventDefault()
@@ -19,18 +43,35 @@ export default function Form() {
             type,
             amount: Number(amount)
         }))
-        setAmount('')
-        setName('')
-        setType('')
+        reset()
     }
 
+    const calcelEditMode = () => {
+        setEditMode(false)
+        dispatch(isEditInActive())
+        reset()
+    }
+
+    const hanelUpdate = (e) => {
+        e.preventDefault()
+        dispatch(changeTransaction({
+            id: editing.id,
+            data: {
+                name,
+                type,
+                amount
+            }
+        }))
+        setEditMode(false)
+        reset()
+    }
 
 
     return (
         <div className="form">
             <h3>Add new transaction</h3>
 
-            <form onSubmit={handelCreate}>
+            <form onSubmit={editMode ? hanelUpdate : handelCreate}>
                 <div className="form-group">
                     <label >Name</label>
                     <input
@@ -75,16 +116,21 @@ export default function Form() {
                         type="number"
                         placeholder="Enter amount"
                         name="amount"
-                        onChange={(e) => setAmount(e.target.value)}
+                        onChange={(e) => setAmount(parseInt(e.target.value))}
                         value={amount}
                     />
                 </div>
 
-                <button disabled={isLoading} className="btn" type="submit">Add Transaction</button>
+                <button disabled={isLoading} className="btn" type="submit">
+
+                    {editMode ? 'Update Transaction' : 'Add Transaction'}
+
+                </button>
+
                 {!isLoading && isError && <p className="error"> {error}</p>}
             </form>
 
-            <button className="btn cancel_edit">Cancel Edit</button>
+            {editMode && <button onClick={calcelEditMode} className="btn cancel_edit">Cancel Edit</button>}
         </div>
     );
 }
